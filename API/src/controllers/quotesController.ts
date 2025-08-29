@@ -14,7 +14,8 @@ export const getAllQuotes = async (req:Request, res:Response): Promise<void> => 
 
         const { data: quotes, error } = await supabase
             .from("quotes")
-            .select("*");
+            .select("*")
+            .order("id", { ascending: false });
 
         if (error) throw error;
 
@@ -46,7 +47,7 @@ export const getQuoteById = async (req:Request, res:Response): Promise<void> => 
             return;
         }
 
-        await setCache(`quote:${quoteId}`, 'quote');
+        await setCache(`quote:${quoteId}`, quote);
         res.json(quote);
     } catch (error) {
         console.error("Failed to get quote by id:", error);
@@ -77,7 +78,7 @@ export const likeQuote = async (req:Request, res:Response): Promise<void> => {
         
         if (updateError) throw updateError;
 
-        await setCache(`quote:${quoteId}`, "quote");
+        await setCache(`quote:${quoteId}`, updatedQuote);
         
         res.status(200).json(updatedQuote);
     } catch (error) {

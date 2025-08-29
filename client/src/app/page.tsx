@@ -34,17 +34,30 @@ export default function Home() {
   }
 
   const handleLike = async (id: string) => {
+    setQuotes(prev => 
+      prev.map(quote =>
+        quote.id === id ? { ...quote, likes: quote.likes + 1 } : quote
+      )
+    )
     try {
-      const res = await axios.post(`${api}/quotes/${id}/like`);
+      await axios.post(`${api}/quotes/${id}/like`);
+
+      const res = await axios.get(`${api}/quotes/${id}`);
       const updatedQuote = res.data;
 
-      setQuotes(prev => 
+      setQuotes(prev =>
         prev.map(quote =>
-          quote.id === id ? { ...quote, likes: updatedQuote.likes } : quote
+          quote.id === id ? updatedQuote : quote
         )
-      )
+      );
+
     } catch (err) {
         console.error("Failed to like quote: ", err);
+        setQuotes(prev =>
+          prev.map(quote =>
+            quote.id === id ? { ...quote, likes: quote.likes - 1 } : quote
+          )
+        );
     }
   }
 
@@ -63,7 +76,7 @@ export default function Home() {
           </tr>
         </thead>
         <tbody>
-          {quotes.map((quote: any) => (
+          {quotes.map((quote) => (
             <tr key={quote.id}>
               <td>{quote.author}</td>
               <td>{quote.text}</td>
